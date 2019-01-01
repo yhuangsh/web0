@@ -24,7 +24,7 @@ spec:
     stage('Build') {
       steps {
         container('dev-alpine-erlang-git') {
-          sh 'rebar3'
+          sh 'rebar3 compile'
         }
       }
     }
