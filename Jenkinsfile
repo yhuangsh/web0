@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'yhuangsh/dev-alpine-erlang-git:latest'
-            args '-p 7000:7000'
+            args '-H tcp://172.17.94.121:2375 -p 7000:7000'
         }
     }
     stages {
