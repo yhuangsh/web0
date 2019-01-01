@@ -1,19 +1,32 @@
-node {
-    environment {
-        DOCKER_HOST = 'tcp://172.17.94.121:2375'
-        DEV_IMAGE = 'yhuangsh/dev-alpine-erlang-git:latest'
+pipeline {
+  agent {
+    kubernetes {
+      label 'web0'
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: dev-alpine-erlang-git
+    image: yhuangsh/dev-alpine-erlang-git:latest
+    tty: true
+"""
     }
-    
-    checkout scm
-
-    docker.withServer('tcp://172.17.94.121:2375') {
-        docker.image('yhuangsh/dev-alpine-erlang-git:latest').withRun('-p 7000:7000') {
-            stage ('Pull') {
-                sh 'git clone https://github.com/yhuangsh/web0'
-            }
-            stage ('Build') {
-                sh 'rebar3 compile'
-            }
+  }
+  stages {
+    stage('Pull') {
+      steps {
+        container('dev-alpine-erlang-git') {
+          sh 'git clone https://github.com/yhuangsh/web0'
         }
+      }
     }
+    stage('Build') {
+      steps {
+        container('dev-alpine-erlang-git') {
+          sh 'rebar3'
+        }
+      }
+    }
+  }
 }
