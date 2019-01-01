@@ -1,6 +1,7 @@
 pipeline {
   agent {
     kubernetes {
+      label 'web-dev-builder'
       yaml """
 apiVersion: v1
 kind: Pod
