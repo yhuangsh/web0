@@ -7,7 +7,9 @@ pipeline {
     }
     stages {
         stage("Pull") {
-            sh 'git clone https://github.com/yhuangsh/web0'
+            steps {
+                sh 'git clone https://github.com/yhuangsh/web0'
+            }
         }
     }
 }
