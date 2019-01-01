@@ -1,7 +1,7 @@
 #!/bin/sh
 
 docker run \
-    --name huang.web0.dev \
+    --name web0.dev \
     --hostname web0.dev \
     -v `pwd`:/project \
     -p 7000:7000 \
