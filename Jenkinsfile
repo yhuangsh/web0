@@ -1,15 +1,14 @@
-pipeline {
-    agent {
-        docker {
-            image 'yhuangsh/dev-alpine-erlang-git:latest'
-            args '-H tcp://172.17.94.121:2375 -p 7000:7000'
-        }
+node {
+    environment {
+        DOCKER_HOST = 'tcp://172.17.94.121:2375'
+        DEV_IMAGE = 'yhuangsh/dev-alpine-erlang-git:latest'
     }
-    stages {
-        stage("Pull") {
-            steps {
-                sh 'git clone https://github.com/yhuangsh/web0'
-            }
+    
+    checkout scm
+
+    docker.withServer('${DOCKER_HOST}') {
+        docker.image('${DEV_IMAGE}').withRun('-p 7000:7000') {
+            sh 'git clone https://github.com/yhuangsh/web0'
         }
     }
 }
