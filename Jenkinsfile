@@ -8,7 +8,12 @@ node {
 
     docker.withServer('tcp://172.17.94.121:2375') {
         docker.image('yhuangsh/dev-alpine-erlang-git:latest').withRun('-p 7000:7000') {
-            sh 'git clone https://github.com/yhuangsh/web0'
+            stage ('Pull') {
+                sh 'git clone https://github.com/yhuangsh/web0'
+            }
+            stage ('Build') {
+                sh 'rebar3 compile'
+            }
         }
     }
 }
