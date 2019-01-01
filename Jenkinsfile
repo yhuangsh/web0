@@ -1,7 +1,6 @@
 pipeline {
   agent {
     kubernetes {
-      label 'web0'
       yaml """
 apiVersion: v1
 kind: Pod
