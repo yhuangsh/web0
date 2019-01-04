@@ -21,7 +21,9 @@ spec:
     }
     stage('Build') {
       steps {
-        sh 'rebar3 compile'
+        container('dev-alpine-erlang') {
+          sh 'rebar3 compile'
+        }
       }
     }
     stage('Tag') {
