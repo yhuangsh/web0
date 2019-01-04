@@ -22,7 +22,7 @@ spec:
     stage('Build') {
       steps {
         container('dev-alpine-erlang') {
-          sh('rebar3 compile'
+          sh('rebar3 compile')
         }
       }
     }
