@@ -25,9 +25,11 @@ spec:
       }
     }
     stage('Tag') {
-      withCredentials([usernamePassword(credentialsId: '76b47592-7939-449d-a880-12ec200fcf84', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-        sh("git tag -a b1 -m 'successful dev build tagged by Jenkins'")
-        sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/yhuangsh/web0 --tags')
+      steps {
+        withCredentials([usernamePassword(credentialsId: '76b47592-7939-449d-a880-12ec200fcf84', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+          sh("git tag -a b1 -m 'successful dev build tagged by Jenkins'")
+          sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/yhuangsh/web0 --tags')
+        }
       }
     }
   }
