@@ -14,18 +14,6 @@ spec:
     }
   }
   stages {
-    stage('Pull') {
-      steps {
-        sh 'hostname'
-        sh 'pwd'
-        sh 'ls -l'
-        // git doesn't have to run within the container, seems Jenkins is using the image's WORDDIR as its workspace
-        // We had done two git clone, one outside, one inside the container, the second clone will complain the project
-        // had been there. 
-        // The git ran should the git from the Jenksin image, not the image from our dev container image
-        sh 'git clone https://github.com/yhuangsh/web0'
-      }
-    }
     stage('Build') {
       steps {
         // rebar3 had to run within the container because it's not included in the Jenkins image
