@@ -56,6 +56,7 @@ spec:
           sh 'pwd'
           sh 'ls -l'
           sh 'rebar3 release'
+          sh 'ls -lR ./_build'
           sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
           sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
         }
