@@ -31,6 +31,11 @@ spec:
         }
       }
     }
+    stage('Test') {
+      steps {
+        sh 'echo "Nothing, placeholder now"'
+      }
+    }
     stage('Tag') {
       steps {
         // Credit: https://github.com/jenkinsci/pipeline-examples/blob/master/pipeline-examples/push-git-repo/pushGitRepo.groovy 
@@ -42,7 +47,7 @@ spec:
         }
       }
     }
-    stage('Create and push dev build image') {
+    stage('Release, make and push dev build image') {
       environment {
           DOCKER_HOST='tcp://172.17.94.121:2375'
           WEB0_IMAGE='yhuangsh/web0-dev-build'
@@ -50,6 +55,7 @@ spec:
       }
       steps {  
         container('dev-alpine-erlang') {
+          sh 'rebar3 release'
           sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
           sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
         }
