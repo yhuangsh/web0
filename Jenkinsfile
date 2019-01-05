@@ -43,12 +43,12 @@ spec:
       }
     }
     stage('Create and push dev build image') {
-      steps {
-        environment {
+      environment {
           DOCKER_HOST='tcp://172.17.94.121:2375'
           WEB0_IMAGE='yhuangsh/web0-dev-build'
           WEB0_IMAGE_TAG='latest'
-        }
+      }
+      steps {  
         container('dev-alpine-erlang') {
           sh 'docker build -f priv/Dockfile.dev-image -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
           sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
