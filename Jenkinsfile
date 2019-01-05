@@ -50,7 +50,7 @@ spec:
       }
       steps {  
         container('dev-alpine-erlang') {
-          sh 'docker build -f priv/Dockfile.dev-image -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
+          sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
           sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
         }
       }
