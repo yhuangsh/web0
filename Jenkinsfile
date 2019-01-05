@@ -18,9 +18,6 @@ spec:
       steps {
         // rebar3 had to run within the container because it's not included in the Jenkins image
         container('dev-alpine-erlang') {
-          sh 'hostname'
-          sh 'pwd'
-          sh 'ls -l'
           sh 'rebar3 compile'
         }
       }
@@ -32,9 +29,6 @@ spec:
     }
     stage('Tag') {
       steps {
-        sh 'hostname'
-        sh 'pwd'
-        sh 'ls -l'
         // Credit: https://github.com/jenkinsci/pipeline-examples/blob/master/pipeline-examples/push-git-repo/pushGitRepo.groovy 
         // This keeps the github username/password, or SSH key within the Jenkins configuration, no having to be stored in 
         // the dev container image
@@ -52,13 +46,12 @@ spec:
       }
       steps {  
         container('dev-alpine-erlang') {
-          sh 'hostname'
-          sh 'pwd'
-          sh 'ls -l'
           sh 'rebar3 release'
-          sh 'ls -lR ./_build'
-          sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
-          sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
+          withCredentials([usernamePassword(credentialsId: 'e930ac8a-26be-46b3-aa47-2a716ec2cf0c', passwordVariable: 'DOCKERIO_PASSWORD', usernameVariable: 'DOCKERIO_USERNAME')]) {
+            sh 'docker login -u ${DOCKERIO_USERNAME} -p ${DOCKERIO_PASSWORD}'
+            sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
+            sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
+          }
         }
       }
     }
