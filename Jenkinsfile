@@ -14,6 +14,8 @@ spec:
     }
   }
   stages {
+    // Pipeline implies SCM clonse/checkout, no explicit git clone needed
+    // May consider remove git from the dev image, but decided to leave it for now
     stage('Build') {
       steps {
         // rebar3 had to run within the container because it's not included in the Jenkins image
@@ -27,6 +29,13 @@ spec:
         sh 'echo "Nothing, placeholder now"'
       }
     }
+    stage('Release') {
+      steps {
+        container('dev-alpine-erlang') {
+          sh 'rebar3 release'
+        }
+      }
+    }
     stage('Tag') {
       steps {
         // Credit: https://github.com/jenkinsci/pipeline-examples/blob/master/pipeline-examples/push-git-repo/pushGitRepo.groovy 
@@ -38,15 +47,18 @@ spec:
         }
       }
     }
-    stage('Release, make and push dev build image') {
+    stage('Make & Push Image') {
       environment {
           DOCKER_HOST='tcp://172.17.94.121:2375'
           WEB0_IMAGE='yhuangsh/web0-dev-build'
           WEB0_IMAGE_TAG='latest'
       }
       steps {  
+        // Would consider install docker client and docker step plugin on Jenkins slave image
+        // This way the dev image does not need to have docker client installed and 
+        // running docker client will not need to be within the 'container' block, also credential and DOCKER_HOST
+        // set up will be easier on the Jenkin's web UI. 
         container('dev-alpine-erlang') {
-          sh 'rebar3 release'
           withCredentials([usernamePassword(credentialsId: 'e930ac8a-26be-46b3-aa47-2a716ec2cf0c', passwordVariable: 'DOCKERIO_PASSWORD', usernameVariable: 'DOCKERIO_USERNAME')]) {
             sh 'docker login -u ${DOCKERIO_USERNAME} -p ${DOCKERIO_PASSWORD}'
             sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
