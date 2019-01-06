@@ -1,10 +1,9 @@
 #!/bin/sh
 
 docker run \
-    --name web0.dev \
-    --hostname web0.dev \
+    --name web0.dev.local \
+    --hostname web0.dev.local \
     -v `pwd`:/project \
-    -v /var/run/docker.sock:/var/run/docker.sock \
     -p 7000:7000 \
     --rm \
     -it \
