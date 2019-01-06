@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web0-dev
+spec:
+  selector: 
+    app: web0-dev
+  ports:
+  - protocol: TCP
+    port: 7000
+    targetPort: 7000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web0-dev
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web0-dev
+  template:
+    metadata:
+      labels:
+        app: web0-dev
+    spec:
+      containers:
+      - name: web0-dev
+        image: yhuangsh/web0-dev-build:latest
+        ports:
+        - containerPort: 7000
