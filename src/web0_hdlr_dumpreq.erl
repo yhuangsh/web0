@@ -8,5 +8,9 @@ init(Req0, State) ->
 
 content_type() -> #{<<"content-type">> => <<"text/text">>}.
 
-dumpreq(#{headers := Headers}) ->
-    jsx:encode(Headers).
+dumpreq(#{headers := Headers, host := Host, method := Method, path := Path}) ->
+    J0 = Headers,
+    J1 = J0#{<<"pased_host">> => Host, 
+             <<"parsed_method">> => Method,
+             <<"parsed_path">> => Path},
+    jsx:prettify(jsx:encode(J1)).
