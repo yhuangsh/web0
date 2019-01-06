@@ -31,6 +31,7 @@ handle_cast(_Cmd, State) ->
 state0() -> #{routes => routes()}.
 
 routes() -> [route0()].
-route0() -> {'_', [{"/", web0_handler, []},
-                   {"/dumpreq", web0_hdlr_dumpreq, []}]}.
+route0() -> {'_', [{prefix("/"), web0_handler, []},
+                   {prefix("/dumpreq"), web0_hdlr_dumpreq, []}]}.
 
+prefix(Path) -> application:get_env(web0, prefix, "") ++ Path.

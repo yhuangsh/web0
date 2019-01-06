@@ -7,7 +7,7 @@
    [kernel,
     stdlib
    ]},
-  {env,[]},
+  {env,[{prefix, "/web0"}]},
   {modules, [web0_main, 
              web0_handler]},
   {maintainers, []},
