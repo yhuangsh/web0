@@ -27,5 +27,6 @@ spec:
       containers:
       - name: web0-dev
         image: yhuangsh/web0-dev-build:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 7000
