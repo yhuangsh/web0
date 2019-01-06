@@ -1,4 +1,4 @@
--module(web0_handler).
+-module(web0_hdlr_index).
 
 -export([init/2]).
 
