@@ -9,4 +9,4 @@ init(Req0, State) ->
 content_type() -> #{<<"content-type">> => <<"text/text">>}.
 
 dumpreq(#{headers := Headers}) ->
-    io_lib:format("~p", [Headers]).
+    jsx:encode(Headers).
