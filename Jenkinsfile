@@ -63,6 +63,7 @@ spec:
             sh 'docker login -u ${DOCKERIO_USERNAME} -p ${DOCKERIO_PASSWORD}'
             sh 'docker build -f priv/Dockfile.dev-build -t ${WEB0_IMAGE}:${WEB0_IMAGE_TAG} .'
             sh 'docker push ${WEB0_IMAGE}:${WEB0_IMAGE_TAG}'
+            sh 'docker image prune -f'
           }
         }
       }
