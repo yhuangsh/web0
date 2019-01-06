@@ -10,7 +10,7 @@ content_type() -> #{<<"content-type">> => <<"text/text">>}.
 
 dumpreq(#{headers := Headers, host := Host, method := Method, path := Path}) ->
     J0 = Headers,
-    J1 = J0#{<<"pased_host">> => Host, 
-             <<"parsed_method">> => Method,
-             <<"parsed_path">> => Path},
+    J1 = J0#{<<"_host">> => Host, 
+             <<"_method">> => Method,
+             <<"_path">> => Path},
     jsx:prettify(jsx:encode(J1)).
