@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: davidhuang-top-ingress
+spec:
+  tls:
+  - hosts:
+    - davidhuang.top
+    - www.davidhuang.top
+    - dev.davidhuang.top
+    secretName: davidhuang-top-prod-tls
+  rules:
+  - host: www.davidhuang.top
+    http:
+      paths: 
+      - path: /nodejs
+        backend:
+          serviceName: nodejs
+          servicePort: 3000
+  - host: dev.davidhuang.top
+    http:
+      paths:
+      - path: /jenkins
+        backend: 
+          serviceName: jenkins
+          servicePort: 8080
+      - path: /web0
+        backend:
+          serviceName: web0-dev
+          servicePort: 7000
