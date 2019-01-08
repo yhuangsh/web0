@@ -2,19 +2,22 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web0-dev
+  labels:
+    app: web0-dev
 spec:
   selector: 
     app: web0-dev
   ports:
-  - protocol: TCP
-    port: 7000
-    targetPort: 7000
+  - port: 7000
+    name: web0-dev
+  clusterIP: None
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: web0-dev
 spec:
+  serviceName: "web0-dev"
   replicas: 3
   selector:
     matchLabels:
@@ -24,9 +27,11 @@ spec:
       labels:
         app: web0-dev
     spec:
+      terminationGracePeriodSeconds: 10
       containers:
       - name: web0-dev
         image: yhuangsh/web0-dev-build:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 7000
+          name: web0-dev
