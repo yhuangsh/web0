@@ -4,4 +4,4 @@ FROM alpine:3.8
 RUN apk add so:libcrypto.so.1.0.0 so:libncursesw.so.6 so:libz.so.1
 ADD _build/default/rel/web0 /deploy/web0 
 ADD priv/start.sh /deploy/web0
-CMD ["/deploy/web0/start.sh"]
+CMD ["/bin/sh", "/deploy/web0/start.sh"]
