@@ -26,5 +26,5 @@ spec:
           servicePort: 8080
       - path: /web0
         backend:
-          serviceName: web0-dev
+          serviceName: web0
           servicePort: 7000
