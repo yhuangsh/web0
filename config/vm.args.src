@@ -1,2 +1,2 @@
--name app@${HOSTNAME}
+-name app
 -setcookie web0_cookie
