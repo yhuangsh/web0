@@ -39,7 +39,7 @@ connect_prev_node($0) -> ok;
 connect_prev_node(N) when is_integer(N) ->    
     N0 = ["app@web0-", N-1, ".web0.default.svc.cluster.local"],
     N1 = list_to_atom(lists:flatten(N0)),
-    net_adm:ping(N1).
+    pong = net_adm:ping(N1).
 
 start_mnesia() ->
     ok.
