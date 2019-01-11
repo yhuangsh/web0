@@ -16,6 +16,7 @@ start_link() ->
 %% Callbacks implementation
 %% ========================
 init(State0 = #{routes := Routes}) ->
+    connect_prev_node(node()),
     start_mnesia(),
     start_cowboy(Routes), 
     {ok, State0}.
@@ -30,8 +31,17 @@ handle_cast(_Cmd, State) ->
 %% ========================
 %% Internal functions
 %% ========================
+
+%% TODO: only works for web0-x, where 0 <= x <= 9
+connect_prev_node(N) when is_atom(N) -> connect_prev_node(atom_to_list(N));
+connect_prev_node([$a,$p,$p,$@,$w,$e,$b,$0,$-, N | _]) -> connect_prev_node(N);
+connect_prev_node($0) -> ok;
+connect_prev_node(N) when is_integer(N) ->    
+    N0 = ["app@web0-", N-1, ".web0.default.svc.cluster.local"],
+    N1 = list_to_atom(lists:flatten(N0)),
+    net_adm:ping(N1).
+
 start_mnesia() ->
-    _MnesiaDataPath = application:get_env(web0, data_path, "/deploy/data/web0"),
     ok.
 
 start_cowboy(Routes) ->
