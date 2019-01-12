@@ -18,10 +18,11 @@ start_link() ->
 %%====================================================================
 
 init(S0) ->
-    connect_prev_node(node()),
-    start_mnesia(),
-    start_cowboy(), 
-    {ok, S0}.
+    Np = connect_prev_node(node()),
+    {ok, DBNodes} = start_mnesia(Np),
+    S1 = S0#{db_nodes => DBNodes},
+    start_cowboy(S1), 
+    {ok, S1}.
 
 handle_call(_Cmd, _From, State) ->
     Reply = ok,
@@ -37,23 +38,27 @@ handle_cast(_Cmd, State) ->
 %% TODO: only works for web0-x, where 0 <= x <= 9
 connect_prev_node(N) when is_atom(N) -> connect_prev_node(atom_to_list(N));
 connect_prev_node([$a,$p,$p,$@,$w,$e,$b,$0,$-, N | _]) -> connect_prev_node(N);
-connect_prev_node($0) -> ok;
+connect_prev_node($0) -> none;
 connect_prev_node(N) when is_integer(N) ->    
-    N0 = ["app@web0-", N-1, ".web0.default.svc.cluster.local"],
-    N1 = list_to_atom(lists:flatten(N0)),
-    pong = net_adm:ping(N1).
+    Np0 = ["app@web0-", N-1, ".web0.default.svc.cluster.local"],
+    Np1 = list_to_atom(lists:flatten(Np0)),
+    pong = net_adm:ping(Np1),
+    Np1.
 
-start_mnesia() ->
-    ok.
+%%
+start_mnesia(Np) when is_atom(Np) ->
+    ok = mnesia:start(),
+    {ok, _} = mnesia:change_config(extra_db_nodes, [Np]).
 
-start_cowboy() ->
-    Dispatch = cowboy_router:compile(routes()),
+%%
+start_cowboy(S0) ->
+    Dispatch = cowboy_router:compile(routes(S0)),
     {ok, _} = cowboy:start_clear(web0_listner, [{port, 7000}], #{env => #{dispatch => Dispatch}}).
 
-routes() -> [route0()].
-route0() -> {'_', [{prefix("/"), web0_hdlr_index, state0()},
-                   {prefix("/probes/:pb"), web0_hdlr_probes, state0()},
-                   {prefix("/dumpreq"), web0_hdlr_dumpreq, state0()},
+routes(S0) -> [route0(S0)].
+route0(S0) -> {'_', [{prefix("/"), web0_hdlr_index, S0},
+                   {prefix("/probes/:pb"), web0_hdlr_probes, S0},
+                   {prefix("/dumpreq"), web0_hdlr_dumpreq, S0},
                    {'_', web0_hdlr_404, []}]}.                
 
 prefix(Path) -> application:get_env(web0, prefix, "") ++ Path.
