@@ -11,7 +11,7 @@ content_type() -> #{<<"content-type">> => <<"text/text">>}.
 hello_msg() ->
     ["Hello from web0, a Kubernetes, Erlang, Cowboy experiment\n",
      "version = ", app_vsn(), "\n",
-     "this node =", atom_to_list(node()), "\n",
+     "this node = ", atom_to_list(node()), "\n",
      "connected nodes = [", mk_list(nodes()), "]\n"].
 
 mk_list(L) ->
