@@ -52,6 +52,7 @@ state0() -> #{routes => routes()}.
 
 routes() -> [route0()].
 route0() -> {'_', [{prefix("/"), web0_hdlr_index, []},
+                   {prefix("/probes/:pb"), web0_hdlr_probes, []},
                    {prefix("/dumpreq"), web0_hdlr_dumpreq, []},
                    {'_', web0_hdlr_404, []}]}.
 
