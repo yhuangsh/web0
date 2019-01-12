@@ -19,7 +19,8 @@ start_link() ->
 
 init(S0) ->
     Np = connect_prev_node(node()),
-    {ok, DBNodes} = start_mnesia(Np),
+    {atomic, ok} = start_mnesia(Np),
+    DBNodes = mnesia:system_info(db_nodes),
     S1 = S0#{db_nodes => DBNodes},
     start_cowboy(S1), 
     {ok, S1}.
@@ -46,9 +47,13 @@ connect_prev_node(N) when is_integer(N) ->
     Np1.
 
 %%
+start_mnesia(none) -> 
+    ok = mnesia:start(),
+    {atomic, ok} = mnesia:create_table(session, []);
 start_mnesia(Np) when is_atom(Np) ->
     ok = mnesia:start(),
-    {ok, _} = mnesia:change_config(extra_db_nodes, [Np]).
+    {ok, _} = mnesia:change_config(extra_db_nodes, [Np]),
+    {atomic, ok} = mnesia:add_table_copy(session, node(), ram_copies).
 
 %%
 start_cowboy(S0) ->
@@ -57,9 +62,10 @@ start_cowboy(S0) ->
 
 routes(S0) -> [route0(S0)].
 route0(S0) -> {'_', [{prefix("/"), web0_hdlr_index, S0},
-                   {prefix("/probes/:pb"), web0_hdlr_probes, S0},
-                   {prefix("/dumpreq"), web0_hdlr_dumpreq, S0},
-                   {'_', web0_hdlr_404, []}]}.                
+                     {prefix("/new/:data"), web0_hdlr_new, S0},
+                     {prefix("/probes/:pb"), web0_hdlr_probes, S0},
+                     {prefix("/dumpreq"), web0_hdlr_dumpreq, S0},
+                     {'_', web0_hdlr_404, []}]}.                
 
 prefix(Path) -> application:get_env(web0, prefix, "") ++ Path.
 
