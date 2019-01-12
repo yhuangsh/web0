@@ -13,7 +13,7 @@ hello_msg() ->
      "version = ", app_vsn(), "\n",
      "this node = ", atom_to_list(node()), "\n",
      "connected nodes = [", mk_list(nodes()), "]\n",
-     "mnesia nodes = [", io_lib:format("~p", mnesia:system_info(db_nodes)), "]\n"].
+     "mnesia nodes = ", io_lib:format("~p", [mnesia:system_info(db_nodes)]), "\n"].
 
 mk_list(L) ->
     lists:join(",", lists:map(fun(N) -> atom_to_list(N) end, L)).
