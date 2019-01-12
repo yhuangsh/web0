@@ -5,6 +5,7 @@
 -export([init/1, handle_cast/2, handle_call/3]).
 
 -define(MNESIA_DATA, "/deploy/web0/mnesia-data").
+-define(SESSION_TAB, session).
 
 %%====================================================================
 %% APIs
@@ -19,11 +20,10 @@ start_link() ->
 
 init(S0) ->
     Np = connect_prev_node(node()),
+    ok = mnesia:start(),
     {atomic, ok} = start_mnesia(Np),
-    DBNodes = mnesia:system_info(db_nodes),
-    S1 = S0#{db_nodes => DBNodes},
-    start_cowboy(S1), 
-    {ok, S1}.
+    start_cowboy(S0), 
+    {ok, S0}.
 
 handle_call(_Cmd, _From, State) ->
     Reply = ok,
@@ -47,13 +47,10 @@ connect_prev_node(N) when is_integer(N) ->
     Np1.
 
 %%
-start_mnesia(none) -> 
-    ok = mnesia:start(),
-    {atomic, ok} = mnesia:create_table(session, []);
+start_mnesia(none) -> {atomic, ok} = mnesia:create_table(?SESSION_TAB, []);
 start_mnesia(Np) when is_atom(Np) ->
-    ok = mnesia:start(),
     {ok, _} = mnesia:change_config(extra_db_nodes, [Np]),
-    {atomic, ok} = mnesia:add_table_copy(session, node(), ram_copies).
+    {atomic, ok} = mnesia:add_table_copy(?SESSION_TAB, node(), ram_copies).
 
 %%
 start_cowboy(S0) ->
@@ -62,7 +59,7 @@ start_cowboy(S0) ->
 
 routes(S0) -> [route0(S0)].
 route0(S0) -> {'_', [{prefix("/"), web0_hdlr_index, S0},
-                     {prefix("/new/:data"), web0_hdlr_new, S0},
+                     {prefix("/cookie/:cmd/[:newsid]"), web0_hdlr_cookie, S0},
                      {prefix("/probes/:pb"), web0_hdlr_probes, S0},
                      {prefix("/dumpreq"), web0_hdlr_dumpreq, S0},
                      {'_', web0_hdlr_404, []}]}.                
