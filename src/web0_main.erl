@@ -6,20 +6,22 @@
 
 -define(MNESIA_DATA, "/deploy/web0/mnesia-data").
 
-%% ========================
-%% APIs implementation
-%% ========================
+%%====================================================================
+%% APIs
+%%====================================================================
+
 start_link() -> 
     gen_server:start_link({local, ?MODULE}, ?MODULE, state0(), []).
 
-%% ========================
-%% Callbacks implementation
-%% ========================
-init(State0 = #{routes := Routes}) ->
+%%====================================================================
+%% Callbacks
+%%====================================================================
+
+init(S0) ->
     connect_prev_node(node()),
     start_mnesia(),
-    start_cowboy(Routes), 
-    {ok, State0}.
+    start_cowboy(), 
+    {ok, S0}.
 
 handle_call(_Cmd, _From, State) ->
     Reply = ok,
@@ -28,9 +30,9 @@ handle_call(_Cmd, _From, State) ->
 handle_cast(_Cmd, State) ->
     {noreply, State}.
 
-%% ========================
+%%====================================================================
 %% Internal functions
-%% ========================
+%%====================================================================
 
 %% TODO: only works for web0-x, where 0 <= x <= 9
 connect_prev_node(N) when is_atom(N) -> connect_prev_node(atom_to_list(N));
@@ -44,16 +46,17 @@ connect_prev_node(N) when is_integer(N) ->
 start_mnesia() ->
     ok.
 
-start_cowboy(Routes) ->
-    Dispatch = cowboy_router:compile(Routes),
+start_cowboy() ->
+    Dispatch = cowboy_router:compile(routes()),
     {ok, _} = cowboy:start_clear(web0_listner, [{port, 7000}], #{env => #{dispatch => Dispatch}}).
 
-state0() -> #{routes => routes()}.
-
 routes() -> [route0()].
-route0() -> {'_', [{prefix("/"), web0_hdlr_index, []},
-                   {prefix("/probes/:pb"), web0_hdlr_probes, []},
-                   {prefix("/dumpreq"), web0_hdlr_dumpreq, []},
-                   {'_', web0_hdlr_404, []}]}.
+route0() -> {'_', [{prefix("/"), web0_hdlr_index, state0()},
+                   {prefix("/probes/:pb"), web0_hdlr_probes, state0()},
+                   {prefix("/dumpreq"), web0_hdlr_dumpreq, state0()},
+                   {'_', web0_hdlr_404, []}]}.                
 
 prefix(Path) -> application:get_env(web0, prefix, "") ++ Path.
+
+state0() -> #{}.
+

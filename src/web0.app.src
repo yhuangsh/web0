@@ -1,6 +1,6 @@
 {application, web0,
- [{description, "An OTP application"},
-  {vsn, "0.1.0"},
+ [{description, "Kubernetes/Erlang experiment app"},
+  {vsn, "0.2.0"},
   {registered, []},
   {mod, {web0_app, []}},
   {applications,

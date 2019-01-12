@@ -1,5 +1,12 @@
 # The Kubernetes/Erlang Experiment
 
+## web0 v0.2.0
+
+### Wish List
+- Add liveness and readiness probes
+- Start distributed Mnesia with ram_copies schema (this is essentailly the session cache).
+- Ugrade to latest nginx ingress controller (The alpine build) and play with it to get source IP.
+
 ## web0 v0.1.0
 
 ### What's Working

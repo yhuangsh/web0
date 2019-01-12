@@ -2,9 +2,9 @@
 
 -export([init/2]).
 
-init(Req0, State) ->
-    Req = cowboy_req:reply(200, content_type(), dumpreq(Req0), Req0),
-    {ok, Req, State}.
+init(R0, S0) ->
+    R1 = cowboy_req:reply(200, content_type(), dumpreq(R0), R0),
+    {ok, R1, S0}.
 
 content_type() -> #{<<"content-type">> => <<"text/text">>}.
 
