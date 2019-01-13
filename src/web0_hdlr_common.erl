@@ -9,9 +9,9 @@
 %%====================================================================
 
 '200'(R, S) -> reply(200, R, S).
-'200'(R, T, S) -> reply(200, R, T, S).
-'400'(R, T, S) -> reply(400, R, T, S).
+'200'(T, R, S) -> reply(200, T, R, S).
+'400'(T, R, S) -> reply(400, T, R, S).
 '404'(R, S) -> reply(404, R, <<"web0: ooops, not found!">>, S).
 
 reply(C, R, S) -> {ok, cowboy_req:reply(C, R), S}.
-reply(C, R, T, S) -> {ok, cowboy_req:reply(C, #{?CT_TEXT}, T, R), S}.
+reply(C, T, R, S) -> {ok, cowboy_req:reply(C, #{?CT_TEXT}, T, R), S}.
