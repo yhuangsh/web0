@@ -59,7 +59,7 @@ start_cowboy(S0) ->
 
 routes(S0) -> [route0(S0)].
 route0(S0) -> {'_', [{prefix("/"), web0_hdlr_index, S0},
-                     {prefix("/cookie/:cmd"), web0_hdlr_session, S0},
+                     {prefix("/session/:cmd/[:data]"), web0_hdlr_session, S0},
                      {prefix("/probes/:pb"), web0_hdlr_probes, S0},
                      {prefix("/dumpreq"), web0_hdlr_dumpreq, S0},
                      {'_', web0_hdlr_404, []}]}.                
