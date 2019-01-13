@@ -37,12 +37,13 @@ handle_cookie_show(Sid, [], R, S) -> web0_hdlr_common:'200'(["session id ", Sid,
 handle_cookie_show(Sid, [{session, _, D}], R, S) -> web0_hdlr_common:'200'(msg_old_session(Sid, D), R, S).
 
 %%
-msg_this_node() -> ["this node = ", atom_to_list(node()), "\n"].
+msg_this_node() -> ["this node = ", atom_to_list(node())].
 
 msg_new_session(S, D) -> msg_session("new session: ", S, D).
 msg_old_session(S, D) -> msg_session("existing session: ", S, D).
 
-msg_session(T, S, D) -> [T, "\n",
+msg_session(T, S, D) -> [msg_this_node(), "\n",
+                         T, "\n",
                          "session id = ", S, "\n",
                          "session data = ", fmt(D), "\n"].
 
