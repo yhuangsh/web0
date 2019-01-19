@@ -12,12 +12,12 @@ handle_cookie(<<"new">>, _, Data, R, S) -> handle_cookie_new(gen_svr_sid(), Data
 handle_cookie(<<"show">>, OldSid, _, R, S) -> handle_cookie_show(OldSid, R, S).
 
 %% 
-handle_cookie_new(_, undefined, R, S) -> web0_hdlr_common:'400'([msg_this_node(), "session data missing"], R, S);
+handle_cookie_new(_, undefined, R, S) -> httpres:'404'([msg_this_node(), "session data missing"], R, S);
 handle_cookie_new(NewSid, Data, R0, S) -> 
     NewData = #{data => Data},
     {atomic, ok} = mnesia:transaction(fun() -> mnesia:write({session, NewSid, NewData}) end),
     R1 = cowboy_req:set_resp_cookie(<<"sid">>, NewSid, R0, cookie_opts()),
-    web0_hdlr_common:'200'(msg_new_session(NewSid, NewData), R1, S).
+    httpres:'200'(msg_new_session(NewSid, NewData), R1, S).
 
 gen_svr_sid() -> base64:encode(crypto:strong_rand_bytes(32)).
 
@@ -29,12 +29,12 @@ cookie_opts() ->
       http_only => true}.
 
 %%
-handle_cookie_show(undefined, R, S) -> web0_hdlr_common:'200'("no session id provided", R, S);
+handle_cookie_show(undefined, R, S) -> httpres:'200'("no session id provided", R, S);
 handle_cookie_show(OldSid, R, S) ->    
     Data = mnesia:dirty_read({session, OldSid}),
     handle_cookie_show(OldSid, Data, R, S).
-handle_cookie_show(Sid, [], R, S) -> web0_hdlr_common:'200'(["session id ", Sid, " does not exist"], R, S);
-handle_cookie_show(Sid, [{session, _, D}], R, S) -> web0_hdlr_common:'200'(msg_old_session(Sid, D), R, S).
+handle_cookie_show(Sid, [], R, S) -> httpres:'200'(["session id ", Sid, " does not exist"], R, S);
+handle_cookie_show(Sid, [{session, _, D}], R, S) -> httpres:'200'(msg_old_session(Sid, D), R, S).
 
 %%
 msg_this_node() -> ["this node = ", atom_to_list(node())].
