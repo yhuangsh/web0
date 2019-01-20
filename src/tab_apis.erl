@@ -1,4 +1,5 @@
 -module(tab_apis).
+-include("./tab_apis.hrl").
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
@@ -15,8 +16,6 @@
          delete/1,
          
          load_from_env/0]).
-
--record(api, {id, path, endpoint, options, more}).
 
 -define(TAB_APIS, apis).
 
