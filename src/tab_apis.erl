@@ -27,7 +27,8 @@
 %% Bootstrap
 create_table() -> 
     mnesia:create_table(?TAB_APIS, 
-                        [{attributes, record_info(fields, api)},
+                        [{record_name, api},
+                         {attributes, record_info(fields, api)},
                          {index, [path]},
                          {disc_copies, [node()]}]).
 add_table_copy() ->
@@ -38,7 +39,7 @@ create(A = #api{id = Id}) ->
     mnesia:transaction(
         fun() -> 
             case mnesia:read(?TAB_APIS, Id) of
-                [] -> mnesia:write(A);
+                [] -> mnesia:write(?TAB_APIS, A, write);
                 [_] -> exists
             end
         end).
@@ -48,11 +49,11 @@ update(A = #api{id = Id}) ->
     mnesia:transaction(
         fun() ->
             case mnesia:read(?TAB_APIS, Id) of 
-                [_] -> mnesia:write(A);
+                [_] -> mnesia:write(?TAB_APIS, A, write);
                 [] -> not_exist
             end
         end).
-update_overwrite(A) -> mnesia:transaction(fun() -> mnesia:write(A) end).
+update_overwrite(A) -> mnesia:transaction(fun() -> mnesia:write(?TAB_APIS, A, write) end).
 delete(Id) -> mnesia:transaction(fun() -> mnesia:delete({?TAB_APIS, Id}) end).
 
 %% 
@@ -87,7 +88,7 @@ setup() ->
     A0 = #api{id = api0000, path = "api0", endpoint = "http://api0:8000/api0"},
     A1 = #api{id = api0001},
     A0new = #api{id = api0000, path = "api1", endpoint = "http://api1:8000/api1"},
-    {U0, U1, U0new}.
+    {A0, A1, A0new}.
 
 cleanup(_) -> 
     ?assertEqual({atomic, ok}, mnesia:delete_table(?TAB_APIS)),
@@ -107,8 +108,8 @@ test_update({A0, A1, A0new}) ->
     [?_assertEqual({atomic, ok}, update(A0)),
      ?_assertEqual({atomic, not_exist}, update(A1)),
      ?_assertEqual({atomic, ok}, update(A0new)),
-     ?_assertEqual([U0new], read(api0000)),
-     ?_assertEqual([U0new], read_path("api1"))].
+     ?_assertEqual([A0new], read(api0000)),
+     ?_assertEqual([A0new], read_path("api1"))].
 
 test_delete({_A0, _A1, _A0new}) ->
     [?_assertEqual({atomic, ok}, delete(api0000)),
