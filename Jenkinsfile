@@ -25,9 +25,11 @@ spec:
       }
     }
     stage('Test') {
-      container('dev-alpine-erlang') {
+      steps {
+        container('dev-alpine-erlang') {
           sh 'rebar3 eunit --name app'
         }
+      }
     }
     stage('Release') {
       steps {
