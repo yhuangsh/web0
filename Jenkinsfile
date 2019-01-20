@@ -25,9 +25,9 @@ spec:
       }
     }
     stage('Test') {
-      steps {
-        sh 'echo "Nothing, placeholder now"'
-      }
+      container('dev-alpine-erlang') {
+          sh 'rebar3 eunit --name app'
+        }
     }
     stage('Release') {
       steps {
