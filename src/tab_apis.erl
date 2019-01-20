@@ -58,11 +58,13 @@ delete(Id) -> mnesia:transaction(fun() -> mnesia:delete({?TAB_APIS, Id}) end).
 %% 
 load_from_env() ->
     APIs = application:get_env(web0, apis, []),
-    mnesia:transaction(
-        fun() ->
-            lists:foreach(fun(A) -> ok = mnesia:write(A) end, APIs)
-        end),
-    {atomic, ok}.
+    {atomic, ok} = 
+        mnesia:transaction(
+            fun() -> lists:foreach(
+                fun(A) -> 
+                    ok = mnesia:write(?TAB_APIS, A, write) 
+                end, APIs) 
+            end).
 
 %%====================================================================
 %% Unit tests

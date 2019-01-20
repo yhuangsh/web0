@@ -10,7 +10,7 @@
    ]},
   {env,[{prefix, "/web0"},
         {port, 7000},
-        {apis, [{apis, api0, "api0", "http://api0:8000", #{}, #{}}]}
+        {apis, [{api, api0, "api0", "http://api0:8000/api0", #{}, #{}}]}
        ]},
   {modules, [web0_main, 
              web0_handler]},

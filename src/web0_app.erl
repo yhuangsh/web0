@@ -30,8 +30,8 @@ stop(_State) ->
 
 init() ->
     Np = connect_prev_node(node()),
-    {atomic, ok} = start_mnesia_init_tab(Np),
-    {atomic, ok} = tab_apis:load_from_env(),
+    start_mnesia_init_tab(Np),
+
     {ok, _} = start_cowboy(state0()).
 
 %% TODO: only works for web0-x, where 0 <= x <= 9
@@ -63,10 +63,9 @@ init_schema_0(ok) -> {atomic, ok} = tab_apis:create_table();
 init_schema_0({error, {_,{already_exists, _}}}) -> {atomic, ok}.
 
 init_tab_0() -> 
-    chk_create_table(tab_apis:create_table()).
-
-chk_create_table({atomic, ok}) -> {atomic, ok};
-chk_create_table({aborted, {already_exists, _}}) -> {atomic, ok}.
+    {atomic, ok} = ensure_table_exists(tab_apis:create_table()),
+    timer:sleep(100),
+    {atomic, ok} = tab_apis:load_from_env().
 
 add_this_node(ram_copies, Np) -> {ok, _} = mnesia:change_config(extra_db_nodes, [Np]);
 add_this_node(disc_copies, _) -> {ok, ignored}.
@@ -75,18 +74,23 @@ add_this_node(disc_copies, _) -> {ok, ignored}.
 init_schema_n(ram_copies) -> {atomic, ok} = mnesia:change_table_copy_type(schema, node(), disc_copies);
 init_schema_n(disc_copies) -> {atomic, ok}.
 
-init_tab_n() -> {atomic, ok} = tab_apis:add_table_copy().
+init_tab_n() -> 
+    {atomic, ok} = ensure_table_exists(tab_apis:add_table_copy()).
+
+ensure_table_exists({atomic, ok}) -> {atomic, ok};
+ensure_table_exists({aborted, {already_exists, _}}) -> {atomic, ok};
+ensure_table_exists({aborted, {already_exists, _, _}}) -> {atomic, ok}.
 
 %%
 start_cowboy(S) ->
     Dispatch = cowboy_router:compile(routes(S)),
     {ok, _} = cowboy:start_clear(web0_listner, [{port, port()}], #{env => #{dispatch => Dispatch}}).
 
-routes(S) -> [{'_', [{prefix("/"), web0_hdlr_index, S},
-                     {prefix("/api0/[...]"), web0_hdlr_api0, S},
-                     {prefix("/session/:cmd/[:data]"), web0_hdlr_session, S},
-                     {prefix("/probes/:pb"), web0_hdlr_probes, S},
-                     {prefix("/dumpreq"), web0_hdlr_dumpreq, S},
+routes(S) -> [{'_', [{prefix("/probes/:pb"), web0_hdlr_probes, S},
+                     {prefix("/debug"), web0_hdlr_index, S},
+                     {prefix("/debug/dumpreq"), web0_hdlr_dumpreq, S},
+                     {prefix("/debug/session/:cmd/[:data]"), web0_hdlr_session, S},
+                     {prefix("/:api/[...]"), web0_hdlr_api0, S},
                      {'_', web0_hdlr_404, []}]}].                
 
 prefix(Path) -> application:get_env(web0, prefix, "") ++ Path.
