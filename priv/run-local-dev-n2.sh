@@ -1,7 +1,7 @@
 #!/bin/sh
 docker run \
     --rm \
-    --net web0-net \
+    --net dev-net \
     --name web0-2 \
     --ip 172.28.0.4 \
     --hostname web0-2.web0.default.svc.cluster.local \
