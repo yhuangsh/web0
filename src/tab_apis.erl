@@ -16,7 +16,7 @@
          
          load_from_env/0]).
 
--record(apis, {id, path, endpoint, options, more}).
+-record(api, {id, path, endpoint, options, more}).
 
 -define(TAB_APIS, apis).
 
@@ -27,37 +27,42 @@
 %% Bootstrap
 create_table() -> 
     mnesia:create_table(?TAB_APIS, 
-                        [{attributes, record_info(fields, ?TAB_APIS)},
+                        [{attributes, record_info(fields, api)},
                          {index, [path]},
                          {disc_copies, [node()]}]).
 add_table_copy() ->
     mnesia:add_table_copy(?TAB_APIS, node(), disc_copies).
 
 %% CRUD
-create(U = #apis{id = Id}) -> 
+create(A = #api{id = Id}) -> 
     mnesia:transaction(
         fun() -> 
             case mnesia:read(?TAB_APIS, Id) of
-                [] -> mnesia:write(U);
+                [] -> mnesia:write(A);
                 [_] -> exists
             end
         end).
 read(Id) -> mnesia:dirty_read(?TAB_APIS, Id).
-read_path(Path) -> mnesia:dirty_index_read(?TAB_APIS, Path, #apis.path).
-update(U = #apis{id = Id}) -> 
+read_path(Path) -> mnesia:dirty_index_read(?TAB_APIS, Path, #api.path).
+update(A = #api{id = Id}) -> 
     mnesia:transaction(
         fun() ->
             case mnesia:read(?TAB_APIS, Id) of 
-                [_] -> mnesia:write(U);
+                [_] -> mnesia:write(A);
                 [] -> not_exist
             end
         end).
-update_overwrite(U) -> mnesia:transaction(fun() -> mnesia:write(U) end).
+update_overwrite(A) -> mnesia:transaction(fun() -> mnesia:write(A) end).
 delete(Id) -> mnesia:transaction(fun() -> mnesia:delete({?TAB_APIS, Id}) end).
 
 %% 
 load_from_env() ->
-    ok.
+    APIs = application:get_env(web0, apis, []),
+    mnesia:transaction(
+        fun() ->
+            lists:foreach(fun(A) -> ok = mnesia:write(A) end, APIs)
+        end),
+    {atomic, ok}.
 
 %%====================================================================
 %% Unit tests
@@ -79,9 +84,9 @@ setup() ->
     ok = mnesia:create_schema([node()]),
     ok = mnesia:start(),
     {atomic, ok} = create_table(),
-    A0 = #apis{id = api0000, path = "api0", endpoint = "http://api0:8000/api0"},
-    A1 = #apis{id = api0001},
-    A0new = #apis{id = api0000, path = "api1", endpoint = "http://api1:8000/api1"},
+    A0 = #api{id = api0000, path = "api0", endpoint = "http://api0:8000/api0"},
+    A1 = #api{id = api0001},
+    A0new = #api{id = api0000, path = "api1", endpoint = "http://api1:8000/api1"},
     {U0, U1, U0new}.
 
 cleanup(_) -> 
